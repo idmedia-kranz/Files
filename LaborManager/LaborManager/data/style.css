@@ -1,0 +1,139 @@
+ul{
+	list-style: none;
+    margin-left: -30px;
+}
+.ingredient .starIcon {
+	opacity: 0.5;
+	position: absolute;
+	right: 0px;
+    top: 0px;
+    color: grey;
+    font-size: 40px;
+}
+
+.ingredient .starIcon.favourite {
+	color: gold;
+    text-shadow: black 2px 2px;
+	opacity: 1;
+}
+
+.ingredient {
+	width: 300px;
+	height: auto;
+	margin: 5px;
+	overflow: hidden;
+	position: relative;
+}
+.ingredientSmall {
+	width: 100px;
+	height: 80px;
+}
+.modal-lg .modal-body>img {
+	float: right;
+	width: 200px;
+    margin-right: 50px;
+}
+.modal-lg .modal-body h3 span{
+	font-size: 15px;
+}
+.modal-lg .modal-body {
+	padding: 30px;
+	padding-top: 10px;
+    max-height: 60%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.ingredientList {
+	font-weight: bold;
+}
+.ingredientList li span{
+    display: inline-block;
+    min-width: 50px;
+}
+.ingredientList li img{
+	height: 30px;
+    width: auto;
+}
+.ingredientList li {
+	line-height: 30px;
+}
+.originalList {
+	margin-top: 20px;
+    font-size: 10px;
+}
+.modal-lg .btn{
+	height: 80px;
+    width: 200px;
+	font-size: 20px;
+}
+.modal-lg .btn-primary {
+	float: left;
+}
+.modal-title {
+	text-align: center;
+}
+.ingredientSmall .close {
+    position: absolute;
+    top: -25px;
+    right: 10px;
+}
+.ingredientSmall .split {
+	font-size: 20px;
+    position: absolute;
+    left: 10px;
+	letter-spacing: -2px;    
+}
+.panel {
+	width: 98%;
+	float: left;
+    margin-right: 20px;
+}
+.ingredient.active {
+	background-color: #00ff00 !important;
+}
+.ingredientSmall img {
+	width: 50px;
+	height: 50px;
+}
+.ingredientSmall p {
+	white-space: normal;
+    line-height: 10px;
+    margin-top: 3px;
+}
+.panel-body {
+	min-height: 120px;
+}
+.ingredient img {
+	width: auto;
+	height: 250px;
+}
+.ingredient p {
+	font-size: 20px;
+}
+
+.tab-content {
+	margin-top: 10px;
+	margin-left: 10px;
+}
+.btn-primary span {
+	font-size: 15px;
+    float: left;
+    width: 100%;
+}
+.glyphicon.einstellungen {
+	position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 30px;
+    opacity: 0.1;
+}
+.glyphicon.einstellungen.active {
+	opacity: 1;
+	color: darkblue;
+}
+.nav {
+	margin: 10px;
+}
+.nav a {
+	font-size: 30px;
+}

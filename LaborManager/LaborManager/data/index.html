@@ -1,0 +1,154 @@
+﻿<!doctype html>
+<html lang="de">
+  <head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Cocktail Maker</title>
+		<link rel="stylesheet" href="style.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-touch.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-filter/0.5.16/angular-filter.js"></script>
+		<script src="https://cdn.jsdelivr.net/angular.bootstrap/2.5.0/ui-bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+		<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+		<script src="angular-dragdrop.js"></script>
+		<script src="javascript.js"></script>
+	</head>
+	<body ng-app="CocktailGenerator" class="ng-cloak">
+		<div ng-controller="ctrl">
+			<ul class="nav nav-tabs">
+			  <li ng-repeat="menue in ['Zutaten', 'Einstellungen', 'Cocktails', 'Säfte', 'Favoriten']" ng-if="(menue!='Einstellungen'&&menue!='Zutaten')||admin.pass==admin.enter" ng-class="::{active:menue=='Cocktails'}" ><a data-toggle="tab" href="#menu{{$index+1}}">{{menue}}</a></li>
+			</ul>
+			<span class="glyphicon glyphicon-cog einstellungen" ng-class="{active: admin.pass==admin.enter}" ng-click="admin.pass==admin.enter?admin.enter='':changeValue(admin, 'enter', 'Bitte Administrator Kennwort eingeben','','password')"></span>
+			<div class="tab-content">
+			  <div id="menu1" class="tab-pane fade" ng-if="admin.pass==admin.enter">
+				<button class="btn btn-default ingredient" ng-repeat="ingredient in ingredients" ng-click="select(ingredient)" ng-class="{active: ingredient.selected}">
+					<img ng-src="http://www.thecocktaildb.com/images/ingredients/{{ingredient.strIngredient1.replace('.','')}}-Medium.png" width="20" /><p>{{ingredient.strIngredient1}}</p>
+				</button>
+			  </div>
+			  <div id="menu2" class="tab-pane fade" ng-if="admin.pass==admin.enter">
+				<div class='contentWrapper'>
+					<div class='content'>
+					  <div class="row-fluid">
+						  <div class="panel panel-default" ng-repeat="origin in origins">
+							<div class="panel-heading" touch-dblclick="changeValue(origin, 'name', 'Neuer Bezeichnung des Getränks', 'Getränk '+($index+1))">{{origin.name}}</div>
+							<div class="panel-body" data-drop="true" ng-model='origin.list' jqyoui-droppable="{multiple:true}">
+								<span ng-repeat="(name, items) in origin.list | groupBy: 'strIngredient1'" ng-show="items[0].strIngredient1" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" ng-model="origin.list" jqyoui-draggable="{index: {{$index}},animate:true}" touch-dblclick="splitIngredient(origin.list, items[0])">
+									<div class="btn btn-draggable ingredientSmall" ng-init="countSplit(items[0].strIngredient1, items.length, $parent.$last&&$last);">
+										<span class="close" ng-click="removeSplit(origin.list, items[0].strIngredient1)" ng-show="splits[items[0].strIngredient1]">X</span>
+										<span class="split" ng-show="splits[items[0].strIngredient1]"><sup>{{items.length}}</sup>/<sub>{{(splits[items[0].strIngredient1]+1)}}</sub></span>
+										<img ng-src="http://www.thecocktaildb.com/images/ingredients/{{items[0].strIngredient1.replace('.','')}}-Medium.png" width="20" /><p>{{items[0].strIngredient1}}</p>
+									</div>
+								</span>
+							</div>
+						  </div>
+					  </div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">Nicht zugeteilt</div>
+					<div class="panel-body">
+					  <span ng-repeat="item in selectedIngredients track by $index" data-drop="true" ng-model='selectedIngredients' data-jqyoui-options="{accept:'.btn-draggable:not([ng-model=selectedIngredients])'}"  jqyoui-droppable="{index: {{$index}}}">
+						<div class="btn btn-draggable ingredientSmall" data-drag="true" data-jqyoui-options="{revert: 'invalid'}" ng-model="selectedIngredients" jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}" ng-hide="!item.strIngredient1">
+							<img ng-src="http://www.thecocktaildb.com/images/ingredients/{{item.strIngredient1.replace('.','')}}-Medium.png" width="20" /><p>{{item.strIngredient1}}</p>
+						</div>
+					  </span>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">Weitere Einstellungen</div>
+					<div class="panel-body">
+						<div class="form-group">
+							<label>Weiteres Getränk hinzufügen:</label>
+							<button class="btn btn-default" ng-click="newOrigin(); changeValue(origins[origins.length-1], 'name', 'Neuer Bezeichnung des Getränks', 'Getränk '+origins.length)">Getränk hinzufügen</button>
+						</div>
+						<div class="form-group">
+							<label>Getränke ohne Belegung löschen:</label>
+							<button class="btn btn-default" ng-click="deleteOrigins();">Getränke löschen</button>
+						</div>
+						<div class="form-group" ng-if="lastId<endAt">
+							<label>Cocktails laden:</label>
+							<button ng-if="!progress" class="btn btn-default" ng-click="getCocktails()">Cocktails suchen</button>
+							<div class="progress" ng-if="progress>0">
+								<div class="progress-bar" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%">
+									<span>Suche läuft ({{progress | number:0}}%)</span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Gespeicherte Cocktails löschen:</label>
+							<button ng-if="!progress" class="btn btn-default" ng-click="resetCocktails()">Cocktails löschen</button>
+						</div>
+						<div class="form-group">
+						  <label>Maximale Cocktailgröße:</label>
+						  <input class="form-control" type="number" ng-model="maxAmount" min="0" max="500" required>
+						</div>
+						<div class="form-group">
+						  <label>Maximale Alkoholmenge:</label>
+						  <input class="form-control" type="number" ng-model="maxAlcAmount" min="0" max="50" required>
+						</div>
+					</div>
+				</div>
+			  </div>
+			  <div id="menu{{$index+3}}" class="tab-pane fade" ng-class="::{'in active': menue=='Cocktails'}" ng-repeat="menue in ['Cocktails', 'Säfte', 'Favoriten']">
+				<button ng-click="test()">Test</button>
+				<button class="btn btn-default ingredient" ng-repeat="cocktail in cocktails track by $index" ng-if="cocktail.missingIngredientsCount==0&&((menue=='Cocktails'&&cocktail.strAlcoholic=='Alcoholic')||(menue=='Säfte'&&cocktail.strAlcoholic!='Alcoholic')||(menue=='Favoriten'&&cocktail.favourite))" sglclick="openCocktailDetails(cocktail)" touch-dblclick="admin.pass==admin.enter&&changeValue(externalImages, cocktail.strDrink, 'Neue Image URL')">
+					<span class="glyphicon glyphicon-star starIcon" ng-class="{favourite: cocktail.favourite}" ng-click="setFavourite(cocktail); $event.stopPropagation();"></span>
+					<img ng-src="{{cocktail.strDrinkThumb||getGoogleImage(cocktail.strDrink)||'default.jpg'}}"/>
+					<p>{{cocktail.strDrink}}</p>
+				</button>
+			  </div>			 
+			</div>
+		</div>
+		<script type="text/ng-template" id="cocktailDetails.html">
+			<div class="modal-header">
+				<h2 class="modal-title">Cocktail {{cocktail.strDrink}}</h2>
+			</div>
+			<div class="modal-body">
+				<img ng-src="{{imageSrc}}" />
+				<div class="ingredientList">
+					<h3>Inhalt je {{totalAmount||0 | number:0}}ml <span>({{alcoholPercent||0|number:0}}% vol. / {{alcoholAmount||0 | number:0}}ml Alc.)<span></h3>
+					<ul>
+						<li ng-repeat="(ingredient, amount) in process"><span>{{amount | number:0}}ml</span><img ng-src="http://www.thecocktaildb.com/images/ingredients/{{ingredientName[ingredient].replace('.','')}}-Medium.png"> {{ingredient}}</li>
+					</ul>
+				</div>
+				<div class="originalList">
+					<h4>Original Zutaten:</h4>
+					<ul>
+						<li ng-repeat="ingredient in ingredients">{{ingredient.missing?'Fehlt: ':''}}{{ingredient.additional?'optional: ':''}}{{ingredient.originalAmount}} {{ingredient.name}}</li>
+					</ul>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div ng-if="status>=0" class="progress-bar" role="progressbar" aria-valuenow="{{status}}" aria-valuemin="0" aria-valuemax="100" style="width:{{status}}%">
+					<span>Cocktail wird hergestellt</span>
+				</div>
+				<button ng-if="status<0" class="btn btn-primary" type="button" ng-click="ok()">Cocktail herstellen<span>Bisher {{cocktail.makes}} mal</span></button>
+				<button ng-if="status<0" class="btn btn-warning" type="button" ng-click="cancel()">Abbrechen</button>
+			</div>
+		</script>
+		<script type="text/ng-template" id="changeText.html">
+			<div class="modal-header">
+				<h2 class="modal-title">Bearbeitung</h2>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+				  <label>{{$ctrl.description}}:</label>
+				  <input class="form-control" type="{{$ctrl.inputType}}" ng-model="$ctrl.value">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">OK</button>
+				<button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+			</div>
+		</script>
+	</body>
+</html>
